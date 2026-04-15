@@ -1,4 +1,5 @@
-# Ecommerce Website
+# EStore Website
+```It is a simple ECommerce Website using Flask and MySQl as DB. ```
 
 ## Frontend
 
