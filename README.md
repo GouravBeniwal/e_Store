@@ -1,5 +1,4 @@
-# EStore Website
-```It is a simple ECommerce Website using Flask and MySQl as DB. ```
+# Ecommerce Website
 
 ## Frontend
 
@@ -23,8 +22,8 @@ erDiagram
         int id PK
         string name
         string email
-        string password
         string phone
+        string gender
         timestamp created_at
     }
 
