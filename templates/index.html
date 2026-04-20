@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% block content %} {% if message %}
+<p>{{ message }}</p>
+{% endif %}
 <p>
   This is the home page of BenStore. We are working hard to bring you an amazing
   shopping experience!

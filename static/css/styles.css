@@ -22,5 +22,38 @@
 form {
   display: flex;
   flex-direction: column;
-  color: #ccc;
+
+  color: #857f7f;
+}
+form label {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: start;
+  font-size: 1.2em;
+}
+form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 51%;
+}
+.gender-radio {
+  display: inline-flex;
+  justify-content: start;
+  margin-top: 10px;
+}
+.gender-radio input {
+  font-size: 0.1em;
+}
+.submit {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
 }

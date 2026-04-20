@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
+      href="{{ url_for('static', filename='/css/styles.css') }}"
     />
     <title>BenStore</title>
   </head>
   <body>
     <p>Welcome to BenStore! Website coming soon.</p>
     <a href="/register"><button>Register</button></a>
+    {% block content %}{% endblock %}
   </body>
 </html>
