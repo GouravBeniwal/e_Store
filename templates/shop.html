@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block title %}Shop — Ben's Store{% endblock %} {%
+block content %}
+
+<div class="shop-hero">
+  <div class="section-label">All Products</div>
+  <h1 class="section-title">The <em>Shop</em></h1>
+  <div class="shop-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="Skincare">Skincare</button>
+    <button class="filter-btn" data-filter="Furniture">Furniture</button>
+    <button class="filter-btn" data-filter="Home">Home</button>
+    <button class="filter-btn" data-filter="Apparel">Apparel</button>
+    <button class="filter-btn" data-filter="Technology">Technology</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="products-grid">
+    {% for product in products %}
+    <a
+      href="{{ url_for('product', product_id=product.id) }}"
+      class="product-card fade-up"
+      data-category="{{ product.category }}"
+    >
+      <div class="product-img">
+        <img
+          src="{{ product.image }}"
+          alt="{{ product.name }}"
+          loading="lazy"
+        />
+        {% if product.tag %}
+        <span
+          class="product-tag {% if product.tag == 'Bestseller' %}bestseller{% endif %}"
+          >{{ product.tag }}</span
+        >
+        {% endif %}
+        <div class="product-quick-add">Quick Add</div>
+      </div>
+      <div class="product-info">
+        <div class="product-category">{{ product.category }}</div>
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-price">Rs &#8377;{{ product.price }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

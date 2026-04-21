@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}{{ product.name }} — Ben's Store{%
+endblock %} {% block content %}
+
+<div class="product-detail">
+  <!-- GALLERY -->
+  <div class="product-gallery">
+    <div class="main-img">
+      <img src="{{ product.image }}" alt="{{ product.name }}" />
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="product-detail-info">
+    <div class="product-category">{{ product.category }}</div>
+    <h1>{{ product.name }}</h1>
+    <div class="product-detail-price">Rs &#8377;{{ product.price }}</div>
+
+    <p class="product-description">
+      A premium {{ product.category | lower }} product crafted with care and
+      attention to detail. Designed for those who appreciate quality and subtle
+      elegance in their everyday life. Each item passes rigorous quality checks
+      before reaching you.
+    </p>
+
+    <button class="add-to-cart-btn">Add to Cart</button>
+
+    <div
+      style="
+        margin-top: 32px;
+        border-top: 1px solid var(--sand);
+        padding-top: 24px;
+      "
+    >
+      <p style="font-size: 13px; color: var(--brown); margin-bottom: 8px">
+        ✓ &nbsp;Free shipping on orders over &#8377;2000
+      </p>
+      <p style="font-size: 13px; color: var(--brown); margin-bottom: 8px">
+        ✓ &nbsp;10-day easy returns
+      </p>
+      <p style="font-size: 13px; color: var(--brown)">
+        ✓ &nbsp;Secure checkout
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED -->
+<div class="section" style="padding-top: 0; border-top: 1px solid var(--sand)">
+  <div class="section-label fade-up">More to explore</div>
+  <div class="section-header fade-up">
+    <h2 class="section-title">Related <em>Items</em></h2>
+  </div>
+  <div class="products-grid">
+    {% for p in related %}
+    <a
+      href="{{ url_for('product', product_id=p.id) }}"
+      class="product-card fade-up"
+    >
+      <div class="product-img">
+        <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" />
+        {% if p.tag %}<span class="product-tag">{{ p.tag }}</span>{% endif %}
+        <div class="product-quick-add">Quick Add</div>
+      </div>
+      <div class="product-info">
+        <div class="product-category">{{ p.category }}</div>
+        <div class="product-name">{{ p.name }}</div>
+        <div class="product-price">Rs &#8377;{{ p.price }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

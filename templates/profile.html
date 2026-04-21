@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %}Profile — Ben's Store{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Profile</h1>
+
+  <p id="email"></p>
+
+  <button onclick="logout()">Logout</button>
+</div>
+<script>
+  async function loadProfile() {
+    const token = localStorage.getItem("access_token");
+
+    const res = await fetch("/profile", {
+      headers: { Authorization: token },
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      refreshToken();
+    } else {
+      document.getElementById("email").innerText = data.email;
+    }
+  }
+
+  async function refreshToken() {
+    const refresh = localStorage.getItem("refresh_token");
+
+    const res = await fetch("/refresh", {
+      method: "POST",
+      headers: { Authorization: refresh },
+    });
+
+    const data = await res.json();
+
+    if (data.access_token) {
+      localStorage.setItem("access_token", data.access_token);
+      loadProfile();
+    } else {
+      window.location.href = "/";
+    }
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = "/";
+  }
+
+  loadProfile();
+</script>
+{% endblock %}

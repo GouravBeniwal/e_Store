@@ -1,0 +1,91 @@
+{% extends "base.html" %} {% block title %}About — Ben's Store{% endblock %} {%
+block content %}
+
+<div class="about-hero">
+  <div class="about-hero-bg"></div>
+  <div class="about-hero-content">
+    <h1>Our story,<br />our craft.</h1>
+  </div>
+</div>
+
+<div class="section">
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    "
+  >
+    <div>
+      <div class="section-label fade-up">Who we are</div>
+      <h2 class="section-title fade-up" style="margin-bottom: 24px">
+        Crafted with<br /><em>intention</em>
+      </h2>
+      <p
+        class="fade-up"
+        style="
+          color: var(--mid);
+          line-height: 1.9;
+          font-weight: 300;
+          margin-bottom: 16px;
+        "
+      >
+        Ben's Store was born from a simple belief: that everyday products should
+        be beautiful, functional, and made to last. We curate only the finest
+        items — from skincare rituals to home essentials — built by makers who
+        share our obsession with quality.
+      </p>
+      <p
+        class="fade-up"
+        style="
+          color: var(--mid);
+          line-height: 1.9;
+          font-weight: 300;
+          margin-bottom: 32px;
+        "
+      >
+        Each product in our catalog is hand-selected and tested by our team. We
+        believe in transparency, fair pricing, and building a community of
+        people who appreciate the finer things in everyday life.
+      </p>
+      <a href="{{ url_for('shop') }}" class="btn-dark fade-up"
+        >Shop the Collection</a
+      >
+    </div>
+    <div
+      class="fade-up"
+      style="border-radius: 4px; overflow: hidden; aspect-ratio: 4/5"
+    >
+      <img
+        src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80"
+        alt="About Ben's Store"
+        style="width: 100%; height: 100%; object-fit: cover"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="features-strip">
+  <div class="features-inner">
+    <div class="feature-item">
+      <div class="feature-num">500+</div>
+      <h3>Products curated</h3>
+      <p>Every item hand-picked for quality, design, and everyday utility.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">50k+</div>
+      <h3>Happy customers</h3>
+      <p>
+        Shoppers across 40+ countries trust Ben's Store for their purchases.
+      </p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">4.9★</div>
+      <h3>Average rating</h3>
+      <p>Consistently praised for product quality and shopping experience.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

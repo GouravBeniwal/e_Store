@@ -1,8 +1,151 @@
-{% extends 'base.html' %} {% block content %} {% if message %}
-<p>{{ message }}</p>
-{% endif %}
-<p>
-  This is the home page of BenStore. We are working hard to bring you an amazing
-  shopping experience!
-</p>
+{% extends "base.html" %} {% block title %}Ben's Store — Effortlessly Selling{%
+endblock %} {% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img
+      src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80"
+      alt="Hero"
+    />
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-label">New Collection — Spring 2025</div>
+    <h1>Effortlessly<br /><em>Selling</em></h1>
+    <p>Discover quality products with fast shipping and secure checkout.</p>
+    <a href="{{ url_for('shop') }}" class="btn-primary">Shop Now →</a>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<div class="section">
+  <div class="section-label fade-up">Fresh Selections</div>
+  <div class="section-header fade-up">
+    <h2 class="section-title">New <em>Arrivals</em></h2>
+    <a href="{{ url_for('shop') }}" class="view-all">View More</a>
+  </div>
+
+  <div class="products-grid">
+    {% for product in products %}
+    <a
+      href="{{ url_for('product', product_id=product.id) }}"
+      class="product-card fade-up"
+      data-category="{{ product.category }}"
+    >
+      <div class="product-img">
+        <img
+          src="{{ product.image }}"
+          alt="{{ product.name }}"
+          loading="lazy"
+        />
+        {% if product.tag %}
+        <span
+          class="product-tag {% if product.tag == 'Bestseller' %}bestseller{% endif %}"
+          >{{ product.tag }}</span
+        >
+        {% endif %}
+        <div class="product-quick-add">Quick Add</div>
+      </div>
+      <div class="product-info">
+        <div class="product-category">{{ product.category }}</div>
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-price">Rs &#8377;{{ product.price }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- FEATURES STRIP -->
+<div class="features-strip">
+  <div class="features-inner">
+    <div class="feature-item">
+      <div class="feature-num">01</div>
+      <h3>Deliver with quality</h3>
+      <p>
+        Every product is crafted with care and attention to detail, ensuring the
+        best for your customers.
+      </p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">02</div>
+      <h3>Designed to impress</h3>
+      <p>
+        A sleek, modern store that enhances your brand and creates a memorable
+        shopping experience.
+      </p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-num">03</div>
+      <h3>Curated for you</h3>
+      <p>
+        Handpicked selections that reflect the latest trends and timeless
+        essentials.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTIONS -->
+<div class="section">
+  <div class="section-label fade-up">Curated for quality</div>
+  <div class="section-header fade-up">
+    <h2 class="section-title">Collections</h2>
+    <a href="{{ url_for('shop') }}" class="view-all">Browse All</a>
+  </div>
+
+  <div class="collections-grid">
+    {% for col in collections %}
+    <div class="collection-card fade-up">
+      <div class="collection-img">
+        <img src="{{ col.image }}" alt="{{ col.name }}" loading="lazy" />
+      </div>
+      <div class="collection-overlay">
+        <h3>{{ col.name }}</h3>
+        <p>{{ col.desc }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-section">
+  <div class="testimonials-inner">
+    <div class="section-label fade-up" style="text-align: center">
+      What people say
+    </div>
+    <h2
+      class="section-title fade-up"
+      style="text-align: center; margin-bottom: 48px"
+    >
+      Loved by <em>thousands</em>
+    </h2>
+    <div class="testimonials-grid">
+      {% for t in testimonials %}
+      <div class="testimonial-card fade-up">
+        <div class="stars">★★★★★</div>
+        <blockquote>"{{ t.text }}"</blockquote>
+        <div class="testimonial-author">
+          <div class="author-avatar">{{ t.name[0] }}</div>
+          <div>
+            <div class="author-name">{{ t.name }}</div>
+            <div class="author-role">{{ t.role }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- BRAND STATEMENT -->
+<div class="brand-statement">
+  <h2>
+    Discover a brand where style, quality, and craftsmanship come together.
+  </h2>
+  <a href="{{ url_for('about') }}" class="btn-outline">Our Story</a>
+</div>
+
 {% endblock %}

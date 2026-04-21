@@ -1,73 +1,191 @@
-from flask import Flask, jsonify, redirect, render_template, request, url_for
-import sqlite3
-import random
-import validate_phone as vp
-from email_validator import validate_email, EmailNotValidError
-dbname = 'ecommerce.db'
-app = Flask(__name__,template_folder='templates',static_folder='static')
+from flask import Flask, redirect, render_template, request, jsonify
+import sqlite3, re, jwt, datetime
+from flask_bcrypt import Bcrypt
+app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'beniwal'
-def get_db():
-    conn = sqlite3.connect(dbname)
-    return conn
+bcrypt = Bcrypt(app)
+dbname = 'database.db'
 def init_db():
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                phone TEXT NOT NULL,
-                gender TEXT NOT NULL
-            )
-        ''')
-        conn.commit()
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        email TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ---------------- Validation ----------------
+def valid_email(e):
+    return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', e)
+
+def valid_password(p):
+    return len(p) >= 8
+
+# ---------------- Token Helpers ----------------
+def create_access_token(user_id):
+    return jwt.encode({
+        "user_id": user_id,
+        "exp": datetime.datetime() + datetime.timedelta(minutes=15)
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
+def create_refresh_token(user_id):
+    return jwt.encode({
+        "user_id": user_id,
+        "exp": datetime.datetime() + datetime.timedelta(days=7)
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
+# Sample product data
+PRODUCTS = [
+    {"id": 1, "name": "DermaVerde Serum", "price": 329, "category": "Skincare", "tag": "New", "image": "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&q=80"},
+    {"id": 2, "name": "PureGlow Lotion", "price": 499, "category": "Skincare", "tag": "Bestseller", "image": "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=500&q=80"},
+    {"id": 3, "name": "ElevateDesk Pro", "price": 1490, "category": "Furniture", "tag": "Featured", "image": "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80"},
+    {"id": 4, "name": "Velvet Throw", "price": 189, "category": "Home", "tag": "New", "image": "https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?w=500&q=80"},
+    {"id": 5, "name": "Linen Blazer", "price": 295, "category": "Apparel", "tag": "", "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500&q=80"},
+    {"id": 6, "name": "Ceramic Vase Set", "price": 149, "category": "Home", "tag": "New", "image": "https://images.unsplash.com/photo-1612196808214-b7e239e5f2b4?w=500&q=80"},
+]
+
+COLLECTIONS = [
+    {"name": "Skincare", "desc": "Glow daily with essentials for healthy, radiant skin.", "image": "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80"},
+    {"name": "Furniture", "desc": "Modern, timeless pieces to style every space.", "image": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80"},
+    {"name": "Technology", "desc": "Smart, innovative gadgets for everyday life.", "image": "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&q=80"},
+    {"name": "Apparel", "desc": "Effortless, stylish staples for any wardrobe.", "image": "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80"},
+]
+
+TESTIMONIALS = [
+    {"text": "Cartelle made setting up my online store so easy! The design is sleek and my customers love the new look.", "name": "Emily Carter", "role": "Boutique Owner"},
+    {"text": "I've tried several eCommerce templates before, but Cartelle stands out. Stylish, user-friendly, and perfectly suited for my shop.", "name": "Daniel Reed", "role": "Home & Living Store Founder"},
+    {"text": "As a small business owner, I needed something simple yet professional. Cartelle delivered beyond expectations.", "name": "Sophia Nguyen", "role": "Handmade Goods Seller"},
+]
+
 @app.route('/')
-def base():
-    return render_template('base.html')
+def index():
+    return render_template('index.html', products=PRODUCTS[:3], collections=COLLECTIONS, testimonials=TESTIMONIALS)
 
-@app.route('/home')
-def home():
-    return render_template('index.html')
+@app.route('/shop')
+def shop():
+    return render_template('shop.html', products=PRODUCTS)
 
-@app.route('/show',methods=['GET'])
+@app.route('/product/<int:product_id>')
+def product(product_id):
+    prod = next((p for p in PRODUCTS if p['id'] == product_id), None)
+    return render_template('product.html', product=prod, related=PRODUCTS[:3])
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/subscribe', methods=['POST'])
+def subscribe():
+    email = request.form.get('email', '')
+    return jsonify({"success": True, "message": f"Thanks! {email} subscribed."})
+
+# ---------------- Authentication ----------------
+@app.route('/signup', methods=['GET','POST'])
+def signup():
+    if request.method == 'GET':
+        return render_template("signup.html")
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not valid_email(email):
+        return "Invalid email"
+
+    if not valid_password(password):
+        return "Weak password"
+
+    hashed = bcrypt.generate_password_hash(password).decode()
+
+    try:
+        conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        cur.execute("INSERT INTO users(email,password) VALUES(?,?)",(email,hashed))
+        conn.commit()
+        conn.close()
+    except:
+        return "User exists"
+
+    return redirect("/")
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template("login.html")
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email=?",(email,))
+    user = cur.fetchone()
+    conn.close()
+
+    if user and bcrypt.check_password_hash(user[2], password):
+        access = create_access_token(user[0])
+        refresh = create_refresh_token(user[0])
+
+        return f"""
+        <script>
+        localStorage.setItem('access_token','{access}');
+        localStorage.setItem('refresh_token','{refresh}');
+        window.location='/profile_page';
+        </script>
+        """
+
+    return "Invalid credentials"
+@app.route('/show')
 def show():
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users')
-        users = cursor.fetchall()
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users")
+    users = cur.fetchall()
+    conn.close()
+
     return jsonify(users)
+@app.route('/profile_page')
+def profile_page():
+    return render_template("profile.html")
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        uname = request.form['name']
-        uemail = request.form['email']
-        uphone = request.form['phone']
-        ugender = request.form['gender']
+@app.route('/profile')
+def profile():
+    token = request.headers.get("Authorization")
 
-        # ADD Validaters here
-        try:
-            valid = validate_email(uemail)
-            uemail = valid.email
-        except EmailNotValidError:
-            return "Invalid Email"
-        if not vp.validate_phone().is_valid(uphone):
-            return "Invalid Phone Number"
-        if not uname or not uemail or not uphone or not ugender:
-            return "All fields are required!", 400
-        else:
-            with get_db() as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT INTO users (name, email, phone, gender)
-                    VALUES (?, ?, ?, ?)
-                ''', (uname, uemail, uphone, ugender))
-                conn.commit() 
-            print(f"Received data: Name={uname}, Email={uemail}, Phone={uphone}, Gender={ugender}")
-            return redirect(url_for('home', message="Registration successful!"))
-    return render_template('register.html')
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        user_id = data['user_id']
+
+        conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        cur.execute("SELECT email FROM users WHERE id=?",(user_id,))
+        user = cur.fetchone()
+        conn.close()
+
+        return jsonify({"email": user[0]})
+
+    except:
+        return jsonify({"error":"Invalid token"})
+
+@app.route('/refresh', methods=['POST'])
+def refresh():
+    token = request.headers.get("Authorization")
+
+    try:
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        new_access = create_access_token(data['user_id'])
+
+        return jsonify({"access_token": new_access})
+
+    except:
+        return jsonify({"error":"Invalid refresh token"}), 401
 
 if __name__ == '__main__':
-        init_db()
-        app.run(debug=True)
+    app.run(debug=True)
