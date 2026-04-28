@@ -81,7 +81,7 @@ const Header = () => {
             <Link to="/shop" onClick={() => setMenuOpen(false)}>
               Collections
             </Link>
-            <Link to="/shop" onClick={() => setMenuOpen(false)}>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>
               About
             </Link>
           </div>
@@ -124,7 +124,7 @@ const Header = () => {
                         background: "none",
                         border: "none",
                         cursor: "pointer",
-                        fontSize: "inherit",
+                        // fontSize: "inherit",
                         color: "inherit",
                         padding: "10px 16px",
                         textAlign: "left",

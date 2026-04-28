@@ -9,6 +9,7 @@ ENV/
 instance/
 *.sqlite3
 *.db
+test_db.py
 
 # Node / React
 node_modules/
@@ -40,4 +41,4 @@ yarn-debug.log*
 *.swo
 coverage/
 project_flow/
-images/
+*.sh

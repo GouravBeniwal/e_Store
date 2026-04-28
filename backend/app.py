@@ -109,6 +109,15 @@ def login():
     token = create_access_token(identity=user.id, additional_claims={'is_admin': user.is_admin, 'username': user.username})
     return jsonify({'access_token': token, 'is_admin': user.is_admin, 'username': user.username, 'user_id': user.id}), 200
 
+@app.route('/api/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    return jsonify({'message': 'Logged out successfully!'}), 200
+
+@app.route('/api/about', methods=['GET'])
+def get_about():
+    return jsonify({'message': 'Welcome to our about page!'}), 200
+
 @app.route('/api/me', methods=['GET'])
 @jwt_required()
 def get_me():
