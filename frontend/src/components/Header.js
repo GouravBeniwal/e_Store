@@ -75,14 +75,17 @@ const Header = () => {
           </Link>
 
           <div className={`nav-links ${menuOpen ? "open" : ""}`}>
+            <Link to="/" onClick={() => setMenuOpen(false)}>
+              Home
+            </Link>
             <Link to="/shop" onClick={() => setMenuOpen(false)}>
               Shop
             </Link>
-            <Link to="/shop" onClick={() => setMenuOpen(false)}>
-              Collections
-            </Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>
               About
+            </Link>
+            <Link to="/contact" onClick={() => setMenuOpen(false)}>
+              Support
             </Link>
           </div>
 
