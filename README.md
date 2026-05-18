@@ -31,16 +31,22 @@ npm start               # Runs on http://localhost:3000
 ```
 project/
 ├── backend/
-│   ├── app.py              # Flask API (SQLite + JWT + bcrypt)
+|   ├── middleware/         #JWT auth
+|   ├── models/             # Class file for db
+|   ├── routes/             # API routes
+|   ├── utilis/             # Helper code  
+│   ├── app.py              # Main File
 │   ├── populate_db.py      # DB seeder with 8 products
 │   ├── static/images/      # Local product images (bottle*.jpg)
+|   ├── extensions.py       # Entry point
+|   ├── config.py
 │   └── instance/           # SQLite DB (auto-created)
 ├── frontend/
-│   └── src/
-│       ├── pages/          # Home, Shop, ProductDetail, Cart, Profile, Login, Signup, Admin
-│       ├── components/     # Header, Footer, Toast
-│       └── utils/          # auth.js, toast.js
-└── images/                 # Source product images
+    └── src/
+        ├── pages/          # Home, Shop, ProductDetail, Cart, Profile, Login, Signup, Admin
+        ├── components/     # Header, Footer, Toast
+        └── utils/          # auth.js, toast.js
+
 ```
 
 ## ✅ Features Implemented
