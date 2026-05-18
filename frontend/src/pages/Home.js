@@ -119,7 +119,7 @@ const Home = () => {
             marginTop: "32px",
           }}
         >
-          {["Fashion", "Technology", "Decoration", "Food"].map((cat) => (
+          {["Fashion", "Technology", "Decoration", "Grocery"].map((cat) => (
             <Link
               key={cat}
               to={`/shop?category=${cat}`}
