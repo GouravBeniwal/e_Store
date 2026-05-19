@@ -5,13 +5,28 @@ import API_BASE_URL from "../config";
 import { getToken } from "../utils/auth";
 import { toast } from "../utils/toast";
 
+import ShippingAddress from "../components/ShippingAddress";
+import PaymentMethod from "../components/PaymentMethod";
+import OrderResult from "../components/OrderResult";
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ordering, setOrdering] = useState(false);
-  const [orderDone, setOrderDone] = useState(null); // { id, total }
+  // const [orderDone, setOrderDone] = useState(null); // { id, total }
   const navigate = useNavigate();
 
+  const [step, setStep] = useState("cart");
+
+  const [shippingAddress, setShippingAddress] = useState(null);
+
+  // const [paymentMethod, setPaymentMethod] = useState(null);
+
+  const [orderStatus, setOrderStatus] = useState({
+    success: null,
+    orderData: null,
+    error: null,
+  });
   const fetchCart = useCallback(async () => {
     const token = getToken();
     if (!token) {
@@ -65,22 +80,86 @@ const Cart = () => {
     }
   };
 
-  const handlePlaceOrder = async () => {
+  // const handlePlaceOrder = async () => {
+  //   const token = getToken();
+  //   setOrdering(true);
+  //   try {
+  //     const res = await axios.post(
+  //       `${API_BASE_URL}/orders`,
+  //       {},
+  //       { headers: { Authorization: `Bearer ${token}` } },
+  //     );
+  //     setOrderDone({ id: res.data.order_id, total: res.data.total });
+  //     setCartItems([]);
+  //     toast.success("Order placed successfully! 🎉");
+  //   } catch (err) {
+  //     toast.error(
+  //       err.response?.data?.message || "Order failed. Please try again.",
+  //     );
+  //   } finally {
+  //     setOrdering(false);
+  //   }
+  // };
+
+  const handlePlaceOrder = async (method) => {
     const token = getToken();
+
     setOrdering(true);
+
     try {
+      // Dummy payment delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // RANDOM PAYMENT FAILURE FOR UPI/CARD
+      // if (method !== "cod") {
+      //   const paymentSuccess = Math.random() > 0.1;
+
+      //   if (!paymentSuccess) {
+      //     throw new Error("Payment failed");
+      //   }
+      // }
+
+      // PLACE ORDER API
       const res = await axios.post(
         `${API_BASE_URL}/orders`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          shippingAddress,
+          paymentMethod: method,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
-      setOrderDone({ id: res.data.order_id, total: res.data.total });
+      console.log("Order Response:", res.data);
+      // SUCCESS
+      setOrderStatus({
+        success: true,
+        orderData: {
+          id: res.data.order_id,
+          total: res.data.total,
+        },
+      });
+
       setCartItems([]);
+
       toast.success("Order placed successfully! 🎉");
+
+      setStep("result");
     } catch (err) {
-      toast.error(
-        err.response?.data?.message || "Order failed. Please try again.",
-      );
+      // FAILURE
+      const message =
+        err.response?.data?.message || err.message || "Payment failed";
+
+      setOrderStatus({
+        success: false,
+        error: message,
+      });
+
+      toast.error(message);
+
+      setStep("result");
     } finally {
       setOrdering(false);
     }
@@ -95,50 +174,82 @@ const Cart = () => {
       </div>
     );
 
-  if (orderDone)
-    return (
-      <div style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ fontSize: "72px", marginBottom: "20px" }}>🎉</div>
-        <h1 style={{ fontSize: "clamp(28px,5vw,48px)", marginBottom: "12px" }}>
-          Order Placed!
-        </h1>
-        <p
-          style={{ fontSize: "18px", color: "var(--mid)", marginBottom: "8px" }}
-        >
-          Your order <strong>#{orderDone.id}</strong> has been confirmed.
-        </p>
-        <p
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "var(--dark)",
-            marginBottom: "32px",
-          }}
-        >
-          Total: ₹{orderDone.total.toLocaleString()}
-        </p>
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Link to="/profile" className="btn-primary">
-            View My Orders
-          </Link>
-          <Link
-            to="/shop"
-            className="btn-primary"
-            style={{ background: "var(--brown)" }}
-          >
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
-    );
+  // if (orderDone)
+  //   return (
+  //     <div style={{ textAlign: "center", padding: "80px 20px" }}>
+  //       <div style={{ fontSize: "72px", marginBottom: "20px" }}>🎉</div>
+  //       <h1 style={{ fontSize: "clamp(28px,5vw,48px)", marginBottom: "12px" }}>
+  //         Order Placed!
+  //       </h1>
+  //       <p
+  //         style={{ fontSize: "18px", color: "var(--mid)", marginBottom: "8px" }}
+  //       >
+  //         Your order <strong>#{orderDone.id}</strong> has been confirmed.
+  //       </p>
+  //       <p
+  //         style={{
+  //           fontSize: "20px",
+  //           fontWeight: 700,
+  //           color: "var(--dark)",
+  //           marginBottom: "32px",
+  //         }}
+  //       >
+  //         Total: ₹{orderDone.total.toLocaleString()}
+  //       </p>
+  //       <div
+  //         style={{
+  //           display: "flex",
+  //           gap: "16px",
+  //           justifyContent: "center",
+  //           flexWrap: "wrap",
+  //         }}
+  //       >
+  //         <Link to="/profile" className="btn-primary">
+  //           View My Orders
+  //         </Link>
+  //         <Link
+  //           to="/shop"
+  //           className="btn-primary"
+  //           style={{ background: "var(--brown)" }}
+  //         >
+  //           Continue Shopping
+  //         </Link>
+  //       </div>
+  //     </div>
+  //   );
 
+  if (step === "shipping") {
+    return (
+      <ShippingAddress
+        onNext={(data) => {
+          setShippingAddress(data);
+          setStep("payment");
+        }}
+      />
+    );
+  }
+
+  if (step === "payment") {
+    return (
+      <PaymentMethod
+        onBack={() => setStep("shipping")}
+        onPay={(method) => {
+          // setPaymentMethod(method);
+          handlePlaceOrder(method);
+        }}
+      />
+    );
+  }
+
+  if (step === "result") {
+    return (
+      <OrderResult
+        success={orderStatus?.success}
+        orderData={orderStatus?.orderData}
+        error={orderStatus?.error}
+      />
+    );
+  }
   return (
     <div className="section">
       <h1 style={{ fontSize: "clamp(28px,5vw,48px)", marginBottom: "32px" }}>
@@ -329,7 +440,7 @@ const Cart = () => {
             </div>
             <button
               className="btn-primary"
-              onClick={handlePlaceOrder}
+              onClick={() => setStep("shipping")}
               disabled={ordering}
               style={{ width: "100%", padding: "16px", fontSize: "17px" }}
             >

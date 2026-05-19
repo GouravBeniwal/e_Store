@@ -711,6 +711,242 @@ button {
   min-width: 300px;
 }
 
+/* =========================
+   CHECKOUT PAGES
+========================= */
+
+.checkout-card {
+  max-width: 700px;
+  margin: 40px auto;
+  background: var(--warm-white);
+  border: 1.5px solid var(--sand);
+  border-radius: 10px;
+  padding: 32px;
+}
+
+.checkout-title {
+  font-size: 32px;
+  margin-bottom: 28px;
+  color: var(--dark);
+}
+.shipping-container {
+  max-width: 520px;
+  width: 100%;
+  margin: 60px auto;
+  padding: 28px;
+  background: var(--warm-white);
+  border: 1.5px solid var(--sand);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.shipping-wrapper {
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.shipping-container h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+/* =========================
+   INPUTS
+========================= */
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--taupe);
+  border-radius: 6px;
+  font-size: 15px;
+  margin-bottom: 16px;
+  background: white;
+  transition: 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--brown);
+  box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.1);
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* =========================
+   PAYMENT OPTIONS
+========================= */
+
+/* default card */
+.payment-card {
+  display: block;
+  padding: 14px 16px;
+  border: 2px solid var(--sand);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--warm-white);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* hover effect */
+.payment-card:hover {
+  border-color: var(--brown);
+  transform: translateY(-1px);
+}
+
+/* ✅ SELECTED STATE */
+.payment-option input[type="radio"]:checked + .payment-card {
+  border-color: var(--accent);
+  background: rgba(0, 128, 96, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 128, 96, 0.15);
+}
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.payment-option {
+  border: 1.5px solid var(--sand);
+  border-radius: 8px;
+  padding: 18px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: white;
+}
+
+.payment-option.active {
+  border-color: var(--brown);
+  background: rgba(139, 94, 60, 0.05);
+}
+
+.payment-option input {
+  display: none;
+}
+
+.payment-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.payment-content img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.payment-content span {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* =========================
+   PAYMENT FORMS
+========================= */
+
+.payment-form {
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--sand);
+}
+
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.checkout-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.btn-secondary {
+  background: #999;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* =========================
+   ORDER RESULT
+========================= */
+
+.order-result {
+  max-width: 700px;
+  margin: 60px auto;
+  text-align: center;
+  padding: 40px;
+}
+
+.order-result-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.order-result-title {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.order-result-text {
+  font-size: 18px;
+  color: var(--mid);
+  margin-bottom: 10px;
+}
+
+.order-result-total {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 24px 0;
+  color: var(--dark);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .checkout-card {
+    margin: 20px;
+    padding: 22px;
+  }
+
+  .checkout-title {
+    font-size: 26px;
+  }
+
+  .checkout-actions {
+    flex-direction: column;
+  }
+
+  .card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-content span {
+    font-size: 15px;
+  }
+}
+
 /* ═══ AUTH PAGES ════════════════════════════════════════════════════════════ */
 .auth-page {
   min-height: 80vh;

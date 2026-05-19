@@ -20,6 +20,18 @@ class Order(db.Model):
         default='confirmed'
     )
 
+     # ✅ PAYMENT FIELDS
+    payment_method = db.Column(db.String(30), default='cod')
+    payment_status = db.Column(db.String(30), default='pending')
+
+    # ✅ SHIPPING FIELDS
+    full_name = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
+    city = db.Column(db.String(80))
+    state = db.Column(db.String(80))
+    pincode = db.Column(db.String(10))
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow
