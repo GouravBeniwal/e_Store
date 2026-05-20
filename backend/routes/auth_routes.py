@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
 import bcrypt
 
 from extensions import db
@@ -69,8 +69,76 @@ def login():
     return jsonify({
         "access_token": token,
         "is_admin":user.is_admin,
-        'username':user.username
+        'username':user.username,
+        "user_id": user.id
     })
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+
+    data = request.get_json() or {}
+
+    current_password = (data.get('current_password') or '').strip()
+    new_password = (data.get('new_password') or '').strip()
+
+    # Validation
+    if not current_password or not new_password:
+        return jsonify({
+            "message": "Current and new password are required"
+        }), 400
+
+    if len(new_password) < 6:
+        return jsonify({
+            "message": "Password must be at least 6 characters"
+        }), 400
+
+    # Get current logged-in user ID from JWT
+    user_id = get_jwt_identity()
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({
+            "message": "User not found"
+        }), 404
+
+    # Verify current password
+    valid = bcrypt.checkpw(
+        current_password.encode('utf-8'),
+        user.password.encode('utf-8')
+    )
+
+    if not valid:
+        return jsonify({
+            "message": "Current password is incorrect"
+        }), 401
+
+    # Prevent same password reuse
+    same_password = bcrypt.checkpw(
+        new_password.encode('utf-8'),
+        user.password.encode('utf-8')
+    )
+
+    if same_password:
+        return jsonify({
+            "message": "New password cannot be same as current password"
+        }), 400
+
+    # Hash new password
+    hashed_password = bcrypt.hashpw(
+        new_password.encode('utf-8'),
+        bcrypt.gensalt()
+    )
+
+    # Update password
+    user.password = hashed_password.decode('utf-8')
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Password updated successfully 🎉"
+    }), 200
 
 @auth_bp.route('/logout',methods=['POST'])
 def logout():

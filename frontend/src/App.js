@@ -13,6 +13,7 @@ import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import ChangePassword from "./pages/ChangePassword";
 import "./App.css";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/cp" element={<ChangePassword />} />
           </Routes>
         </main>
         <Footer />

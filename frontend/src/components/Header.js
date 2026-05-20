@@ -110,6 +110,7 @@ const Header = () => {
                 </div>
                 {dropdown && (
                   <div className="dropdown">
+                    <Link to="/cp" onClick={() => setDropdown(false)}>Change Password</Link>
                     <Link to="/profile" onClick={() => setDropdown(false)}>
                       My Orders
                     </Link>

@@ -169,6 +169,52 @@ button {
   padding: 8px;
 }
 
+/* ═══ CHANGE PASSWORD ════════════════════════════════════════════════════ */
+.change-password-card {
+  max-width: 480px;
+}
+
+/* Optional password-specific improvements */
+
+.change-password-card .auth-header h1 {
+  color: #222;
+}
+
+.change-password-card .auth-header p {
+  color: #666;
+}
+
+/* Better spacing for password fields */
+
+.change-password-card .form-group {
+  margin-bottom: 20px;
+}
+
+/* Smooth input styling */
+
+.change-password-card input {
+  transition: all 0.25s ease;
+}
+
+.change-password-card input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Button animation */
+
+.change-password-card .btn-auth {
+  transition: all 0.25s ease;
+}
+
+.change-password-card .btn-auth:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.change-password-card .btn-auth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 /* ═══ HERO ══════════════════════════════════════════════════════════════════ */
 .hero {
   position: relative;
