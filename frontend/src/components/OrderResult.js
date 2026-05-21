@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const OrderResult = ({ success, orderData, error }) => {
+const OrderResult = ({ success, orderData, error, setStep }) => {
   if (success) {
     return (
       <div style={{ textAlign: "center", padding: "80px 20px" }}>
@@ -47,13 +47,13 @@ const OrderResult = ({ success, orderData, error }) => {
         {error || "Something went wrong"}
       </p>
 
-      <Link
-        to="/cart"
+      <button
+        onClick={() => setStep("cart")}
         className="btn-primary"
         style={{ marginTop: "24px", display: "inline-block" }}
       >
         Try Again
-      </Link>
+      </button>
     </div>
   );
 };

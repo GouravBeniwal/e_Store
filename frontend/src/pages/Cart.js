@@ -247,6 +247,7 @@ const Cart = () => {
         success={orderStatus?.success}
         orderData={orderStatus?.orderData}
         error={orderStatus?.error}
+        setStep={setStep}
       />
     );
   }
