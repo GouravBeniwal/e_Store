@@ -9,9 +9,20 @@ category_bp = Blueprint('categories', __name__)
 def get_categories():
 
     categories = db.session.query(
-        Product.category
+        Product.category,
+        Product.subcategory,
+        Product.product_type,
     ).distinct().all()
 
-    result = [c[0] for c in categories if c[0]]
+    result = set()
+    for category, subcategory, product_type in categories:
+        if not category:
+            continue
+        result.add(category)
+        if subcategory:
+            result.add(f"{category} / {subcategory}")
+        if subcategory and product_type:
+            result.add(f"{category} / {subcategory} / {product_type}")
 
-    return jsonify(result)
+    return jsonify(sorted(result))
+

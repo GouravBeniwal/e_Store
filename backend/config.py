@@ -10,3 +10,4 @@ class Config:
     JWT_SECRET_KEY = "change-this-in-production"
 
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)

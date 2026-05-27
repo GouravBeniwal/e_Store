@@ -2,9 +2,49 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config";
+import groceryHero from "../assets/grocery_bg.jpg";
+import fashionHero from "../assets/fashion-hero.jpg";
+import decorationHero from "../assets/decoration-hero.jpeg";
+import technologyHero from "../assets/tech-hero.jpeg";
+
+const heroSlides = [
+  {
+    category: "Fashion",
+    label: "New Season Style",
+    title: "Dress Up Your Everyday",
+    description:
+      "Discover bold looks, polished essentials, and wardrobe favorites for every occasion.",
+    image: fashionHero,
+  },
+  {
+    category: "Technology",
+    label: "Fresh Tech Picks",
+    title: "Gear for Modern Living",
+    description:
+      "Shop smart gadgets, sleek accessories, and daily tech that keeps you connected.",
+    image: technologyHero,
+  },
+  {
+    category: "Decoration",
+    label: "Home Interior",
+    title: "Make Your Space Feel Alive",
+    description:
+      "Refresh your home with decor, lighting, and accents designed to inspire comfort.",
+    image: decorationHero,
+  },
+  {
+    category: "Grocery",
+    label: "Fresh Finds",
+    title: "Daily Essentials Delivered",
+    description:
+      "Stock up on pantry staples, healthy picks, and everyday favorites with ease.",
+    image: groceryHero,
+  },
+];
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     axios
@@ -13,31 +53,52 @@ const Home = () => {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = heroSlides[activeSlide];
+
   return (
     <>
       {/* HERO */}
-      <section className="hero">
+      <section className="hero hero-slider">
         <div className="hero-bg">
-          <img
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80"
-            alt="Hero"
-          />
+          <img src={slide.image} alt={slide.category} />
         </div>
         <div className="hero-overlay" />
         <div className="hero-content">
-          <div className="hero-label">New Collection — 2025</div>
+          <div className="hero-label">{slide.label}</div>
           <h1>
-            Move in
-            <br />
-            <em>Style</em>
+            {slide.title.split(" ").map((word, index) => (
+              <React.Fragment key={index}>
+                {word}
+                <br />
+              </React.Fragment>
+            ))}
           </h1>
-          <p>
-            Premium products designed for every adventure. Quality you can
-            trust, design you'll love.
-          </p>
-          <Link to="/shop" className="btn-primary">
-            Shop Now →
+          <p>{slide.description}</p>
+          <Link
+            to={`/shop?category=${encodeURIComponent(slide.category)}`}
+            className="btn-primary"
+          >
+            Explore {slide.category} →
           </Link>
+          <div className="hero-dots">
+            {heroSlides.map((item, index) => (
+              <button
+                key={item.category}
+                className={
+                  index === activeSlide ? "hero-dot active" : "hero-dot"
+                }
+                onClick={() => setActiveSlide(index)}
+                aria-label={`Show ${item.category}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -123,15 +184,7 @@ const Home = () => {
             <Link
               key={cat}
               to={`/shop?category=${cat}`}
-              style={{
-                padding: "16px 32px",
-                background: "var(--dark)",
-                color: "var(--cream)",
-                borderRadius: "4px",
-                fontSize: "16px",
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-              }}
+              className="btn-primary"
             >
               {cat}
             </Link>

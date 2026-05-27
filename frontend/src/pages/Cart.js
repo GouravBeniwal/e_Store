@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config";
-import { getToken } from "../utils/auth";
+import { getToken, isAdmin } from "../utils/auth";
 import { toast } from "../utils/toast";
 
 import ShippingAddress from "../components/ShippingAddress";
@@ -18,15 +18,15 @@ const Cart = () => {
 
   const [step, setStep] = useState("cart");
 
-  const [shippingAddress, setShippingAddress] = useState(null);
-
-  // const [paymentMethod, setPaymentMethod] = useState(null);
+  const [shippingId, setShippingId] = useState(null);
 
   const [orderStatus, setOrderStatus] = useState({
     success: null,
     orderData: null,
     error: null,
   });
+  const adminUser = isAdmin();
+
   const fetchCart = useCallback(async () => {
     const token = getToken();
     if (!token) {
@@ -50,6 +50,10 @@ const Cart = () => {
   }, [fetchCart]);
 
   const handleRemove = async (id) => {
+    if (adminUser) {
+      toast.error("Admin accounts cannot manage the cart");
+      return;
+    }
     const token = getToken();
     try {
       await axios.delete(`${API_BASE_URL}/cart/${id}`, {
@@ -63,6 +67,10 @@ const Cart = () => {
   };
 
   const handleQtyChange = async (id, qty) => {
+    if (adminUser) {
+      toast.error("Admin accounts cannot manage the cart");
+      return;
+    }
     const token = getToken();
     if (qty < 1) {
       handleRemove(id);
@@ -80,85 +88,92 @@ const Cart = () => {
     }
   };
 
-  // const handlePlaceOrder = async () => {
-  //   const token = getToken();
-  //   setOrdering(true);
-  //   try {
-  //     const res = await axios.post(
-  //       `${API_BASE_URL}/orders`,
-  //       {},
-  //       { headers: { Authorization: `Bearer ${token}` } },
-  //     );
-  //     setOrderDone({ id: res.data.order_id, total: res.data.total });
-  //     setCartItems([]);
-  //     toast.success("Order placed successfully! 🎉");
-  //   } catch (err) {
-  //     toast.error(
-  //       err.response?.data?.message || "Order failed. Please try again.",
-  //     );
-  //   } finally {
-  //     setOrdering(false);
-  //   }
-  // };
-
-  const handlePlaceOrder = async (method) => {
+  const handleShippingNext = async (address) => {
+    if (adminUser) {
+      toast.error("Admin accounts cannot checkout");
+      return;
+    }
     const token = getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     setOrdering(true);
-
     try {
-      // Dummy payment delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await axios.post(`${API_BASE_URL}/shipping`, address, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      // RANDOM PAYMENT FAILURE FOR UPI/CARD
-      // if (method !== "cod") {
-      //   const paymentSuccess = Math.random() > 0.1;
+      setShippingId(res.data.shipping_id);
+      setStep("payment");
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Could not save shipping address",
+      );
+    } finally {
+      setOrdering(false);
+    }
+  };
 
-      //   if (!paymentSuccess) {
-      //     throw new Error("Payment failed");
-      //   }
-      // }
+  const handlePayment = async ({ method, upiId, cardData }) => {
+    if (adminUser) {
+      toast.error("Admin accounts cannot checkout");
+      return;
+    }
+    const token = getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-      // PLACE ORDER API
+    if (!shippingId) {
+      toast.error("Please complete shipping details first");
+      setStep("shipping");
+      return;
+    }
+
+    setOrdering(true);
+    try {
       const res = await axios.post(
-        `${API_BASE_URL}/orders`,
+        `${API_BASE_URL}/payments`,
         {
-          shippingAddress,
-          paymentMethod: method,
+          method,
+          upiId,
+          cardData,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
-      console.log("Order Response:", res.data);
-      // SUCCESS
+
+      const orderRes = await axios.post(
+        `${API_BASE_URL}/orders`,
+        {
+          shipping_id: shippingId,
+          payment_id: res.data.payment_id,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
       setOrderStatus({
         success: true,
         orderData: {
-          id: res.data.order_id,
-          total: res.data.total,
+          id: orderRes.data.order_id,
+          total: orderRes.data.total,
         },
       });
 
       setCartItems([]);
-
       toast.success("Order placed successfully! 🎉");
-
       setStep("result");
     } catch (err) {
-      // FAILURE
       const message =
         err.response?.data?.message || err.message || "Payment failed";
-
-      setOrderStatus({
-        success: false,
-        error: message,
-      });
-
+      setOrderStatus({ success: false, error: message });
       toast.error(message);
-
       setStep("result");
     } finally {
       setOrdering(false);
@@ -167,12 +182,7 @@ const Cart = () => {
 
   const total = cartItems.reduce((s, i) => s + i.product.price * i.quantity, 0);
 
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", padding: "80px", fontSize: "20px" }}>
-        Loading cart…
-      </div>
-    );
+  if (loading) return <div className="page-loading">Loading cart…</div>;
 
   // if (orderDone)
   //   return (
@@ -219,25 +229,12 @@ const Cart = () => {
   //   );
 
   if (step === "shipping") {
-    return (
-      <ShippingAddress
-        onNext={(data) => {
-          setShippingAddress(data);
-          setStep("payment");
-        }}
-      />
-    );
+    return <ShippingAddress onNext={handleShippingNext} />;
   }
 
   if (step === "payment") {
     return (
-      <PaymentMethod
-        onBack={() => setStep("shipping")}
-        onPay={(method) => {
-          // setPaymentMethod(method);
-          handlePlaceOrder(method);
-        }}
-      />
+      <PaymentMethod onBack={() => setStep("shipping")} onPay={handlePayment} />
     );
   }
 
@@ -252,43 +249,29 @@ const Cart = () => {
     );
   }
   return (
-    <div className="section">
-      <h1 style={{ fontSize: "clamp(28px,5vw,48px)", marginBottom: "32px" }}>
+    <div className="section cart-page">
+      <h1 className="section-title">
         Your Cart{" "}
         {cartItems.length > 0 && (
-          <span
-            style={{ fontSize: "20px", color: "var(--brown)", fontWeight: 400 }}
-          >
-            ({cartItems.length} items)
-          </span>
+          <span className="cart-count">({cartItems.length} items)</span>
         )}
       </h1>
+      {adminUser && (
+        <div className="admin-alert">
+          Admin accounts cannot manage cart items or place orders.
+        </div>
+      )}
 
       {cartItems.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px" }}>
-          <div style={{ fontSize: "60px", marginBottom: "16px" }}>🛒</div>
-          <p
-            style={{
-              fontSize: "20px",
-              color: "var(--brown)",
-              marginBottom: "24px",
-            }}
-          >
-            Your cart is empty.
-          </p>
+        <div className="empty-state">
+          <div className="empty-state-icon">🛒</div>
+          <p className="empty-state-text">Your cart is empty.</p>
           <Link to="/shop" className="btn-primary">
             Start Shopping
           </Link>
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr auto",
-            gap: "32px",
-            alignItems: "start",
-          }}
-        >
+        <div className="cart-grid">
           <div>
             {cartItems.map((item) => (
               <div key={item.id} className="cart-item">
@@ -302,93 +285,40 @@ const Cart = () => {
                   />
                 </div>
                 <div className="cart-item-info">
-                  <div style={{ fontSize: "18px", fontWeight: 700 }}>
-                    {item.product.name}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "17px",
-                      color: "var(--accent)",
-                      fontWeight: 600,
-                      margin: "6px 0",
-                    }}
-                  >
+                  <div className="cart-item-name">{item.product.name}</div>
+                  <div className="cart-item-price">
                     ₹{item.product.price.toLocaleString()}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0",
-                      border: "1.5px solid var(--taupe)",
-                      borderRadius: "4px",
-                      width: "fit-content",
-                      marginTop: "10px",
-                    }}
-                  >
+                  <div className="qty-selector">
                     <button
                       onClick={() =>
                         handleQtyChange(item.id, item.quantity - 1)
                       }
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        fontSize: "20px",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
+                      className="qty-btn"
+                      disabled={adminUser}
                     >
                       −
                     </button>
-                    <span
-                      style={{
-                        width: "36px",
-                        textAlign: "center",
-                        fontSize: "16px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {item.quantity}
-                    </span>
+                    <span className="qty-count">{item.quantity}</span>
                     <button
                       onClick={() =>
                         handleQtyChange(item.id, item.quantity + 1)
                       }
-                      style={{
-                        width: "36px",
-                        height: "36px",
-                        fontSize: "20px",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
+                      className="qty-btn"
+                      disabled={adminUser}
                     >
                       +
                     </button>
                   </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-end",
-                    gap: "8px",
-                  }}
-                >
-                  <div style={{ fontSize: "18px", fontWeight: 700 }}>
+                <div className="cart-item-actions">
+                  <div className="cart-item-total">
                     ₹{(item.product.price * item.quantity).toLocaleString()}
                   </div>
                   <button
                     onClick={() => handleRemove(item.id)}
-                    style={{
-                      fontSize: "13px",
-                      color: "#c00",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: "4px 0",
-                    }}
+                    className="cart-remove"
+                    disabled={adminUser}
                   >
                     Remove
                   </button>
@@ -398,65 +328,34 @@ const Cart = () => {
           </div>
 
           <div className="order-summary">
-            <h3 style={{ fontSize: "22px", marginBottom: "20px" }}>
-              Order Summary
-            </h3>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-                fontSize: "16px",
-              }}
-            >
+            <h3 className="order-summary-title">Order Summary</h3>
+            <div className="summary-row">
               <span>Subtotal</span>
               <span>₹{total.toLocaleString()}</span>
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "10px",
-                fontSize: "16px",
-                color: "var(--brown)",
-              }}
-            >
+            <div className="summary-row summary-row--accent">
               <span>Shipping</span>
               <span>{total >= 2000 ? "Free" : "₹99"}</span>
             </div>
-            <hr style={{ margin: "16px 0", borderColor: "var(--sand)" }} />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "20px",
-                fontWeight: 700,
-                marginBottom: "24px",
-              }}
-            >
+            <hr className="summary-divider" />
+            <div className="summary-row summary-row--total">
               <span>Total</span>
               <span>
                 ₹{(total >= 2000 ? total : total + 99).toLocaleString()}
               </span>
             </div>
             <button
-              className="btn-primary"
+              className="btn-primary btn-full"
               onClick={() => setStep("shipping")}
-              disabled={ordering}
-              style={{ width: "100%", padding: "16px", fontSize: "17px" }}
+              disabled={adminUser || ordering}
             >
-              {ordering ? "Placing Order…" : "Place Order →"}
+              {adminUser
+                ? "Admin accounts cannot place orders"
+                : ordering
+                  ? "Placing Order…"
+                  : "Place Order →"}
             </button>
-            <Link
-              to="/shop"
-              style={{
-                display: "block",
-                textAlign: "center",
-                marginTop: "14px",
-                fontSize: "15px",
-                color: "var(--brown)",
-              }}
-            >
+            <Link to="/shop" className="continue-link">
               Continue Shopping
             </Link>
           </div>

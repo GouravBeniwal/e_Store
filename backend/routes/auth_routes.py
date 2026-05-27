@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 import bcrypt
 
 from extensions import db
 from models.user import User
 
 auth_bp = Blueprint('auth', __name__)
+
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -15,6 +16,9 @@ def register():
     username = (data.get('username') or '').strip()
     email = (data.get('email') or "").strip().lower()
     password = (data.get('password') or '').strip()
+
+    if not username or not email or not password:
+        return jsonify({"message": "Username, email, and password are required"}), 400
 
     existing_user = User.query.filter_by(email=email).first()
 
@@ -64,14 +68,30 @@ def login():
     if not valid:
         return jsonify({"message": "Invalid credentials"}), 401
 
-    token = create_access_token(identity=user.id,additional_claims={'is_admin': user.is_admin, 'username': user.username})
+    access_token = create_access_token(identity=user.id, additional_claims={'is_admin': user.is_admin, 'username': user.username})
+    refresh_token = create_refresh_token(identity=user.id)
 
     return jsonify({
-        "access_token": token,
-        "is_admin":user.is_admin,
-        'username':user.username,
-        "user_id": user.id
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "is_admin": user.is_admin,
+        "username": user.username,
+        "user_id": user.id,
     })
+
+
+@auth_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    access_token = create_access_token(identity=user.id, additional_claims={'is_admin': user.is_admin, 'username': user.username})
+    return jsonify({"access_token": access_token})
+
 
 @auth_bp.route('/change-password', methods=['POST'])
 @jwt_required()
@@ -86,11 +106,6 @@ def change_password():
     if not current_password or not new_password:
         return jsonify({
             "message": "Current and new password are required"
-        }), 400
-
-    if len(new_password) < 6:
-        return jsonify({
-            "message": "Password must be at least 6 characters"
         }), 400
 
     # Get current logged-in user ID from JWT

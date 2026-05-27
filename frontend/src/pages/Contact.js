@@ -53,24 +53,19 @@ export default function Contact() {
       <div className="support-page">
         {/* ── Hero ── */}
         <section className="support-hero">
+          <div className="support-hero__image">
+            <img
+              src="https://framerusercontent.com/images/GCkCpmBsWQw1jGksA01bkHvB34.jpeg?width=654&height=1200"
+              alt="Support"
+            />
+            <div className="support-hero__image-overlay" />
+          </div>
           <div className="support-hero__text">
-            <p className="support-hero__eyebrow">Customer Support</p>
             <h1 className="support-hero__title">
               We're here
               <br />
               to help
             </h1>
-            <p className="support-hero__subtitle">
-              Questions? Concerns? Let's make your shopping experience seamless
-              and enjoyable.
-            </p>
-          </div>
-          <div className="support-hero__image">
-            <img
-              src="https://framerusercontent.com/images/bFA3c4m4iQTDfKBu2hmASZI5nRc.jpeg?width=673&height=1200"
-              alt="Support"
-            />
-            <div className="support-hero__image-overlay" />
           </div>
         </section>
 
@@ -137,15 +132,7 @@ export default function Contact() {
               get exclusive perks delivered straight to your inbox!
             </p>
             {subscribed ? (
-              <p
-                style={{
-                  color: "#c8b89a",
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: "17px",
-                }}
-              >
-                Thanks for subscribing! ✓
-              </p>
+              <p className="newsletter-success">Thanks for subscribing! ✓</p>
             ) : (
               <form
                 className="support-newsletter__form"

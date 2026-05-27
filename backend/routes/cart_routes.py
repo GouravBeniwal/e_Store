@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import db
 from models.cart import Cart
 from models.product import Product
+from models.user import User
 
 cart_bp = Blueprint('cart', __name__)
 
@@ -38,6 +39,9 @@ def get_cart():
 def add_to_cart():
 
     user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if user and user.is_admin:
+        return jsonify({'message': 'Admin accounts cannot add items to cart'}), 403
 
     data = request.get_json() or {}
 
@@ -83,6 +87,9 @@ def add_to_cart():
 def update_cart(cart_id):
 
     user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if user and user.is_admin:
+        return jsonify({'message': 'Admin accounts cannot modify the cart'}), 403
 
     item = Cart.query.filter_by(
         id=cart_id,
@@ -117,6 +124,9 @@ def update_cart(cart_id):
 def remove_cart_item(cart_id):
 
     user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if user and user.is_admin:
+        return jsonify({'message': 'Admin accounts cannot modify the cart'}), 403
 
     item = Cart.query.filter_by(
         id=cart_id,

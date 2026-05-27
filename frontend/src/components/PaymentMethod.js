@@ -28,7 +28,7 @@ const PaymentMethod = ({ onBack, onPay }) => {
       return;
     }
 
-    onPay(method);
+    onPay({ method, upiId, cardData });
   };
 
   return (
@@ -36,11 +36,7 @@ const PaymentMethod = ({ onBack, onPay }) => {
       <h2 className="checkout-title">Payment Method</h2>
 
       <div className="payment-options">
-        <label
-          className={`payment-option ${
-            method === "cod" ? "active-payment" : ""
-          }`}
-        >
+        <label className={`payment-option ${method === "cod" ? "active" : ""}`}>
           <input
             type="radio"
             value="cod"
@@ -56,11 +52,7 @@ const PaymentMethod = ({ onBack, onPay }) => {
           </div>
         </label>
 
-        <label
-          className={`payment-option ${
-            method === "upi" ? "active-payment" : ""
-          }`}
-        >
+        <label className={`payment-option ${method === "upi" ? "active" : ""}`}>
           <input
             type="radio"
             value="upi"
@@ -89,9 +81,7 @@ const PaymentMethod = ({ onBack, onPay }) => {
         )}
 
         <label
-          className={`payment-option ${
-            method === "card" ? "active-payment" : ""
-          }`}
+          className={`payment-option ${method === "card" ? "active" : ""}`}
         >
           <input
             type="radio"
@@ -167,7 +157,7 @@ const PaymentMethod = ({ onBack, onPay }) => {
         )}
       </div>
 
-      <div className="checkout-actions">
+      <div className="checkout-actions payment-actions">
         <button type="button" onClick={onBack} className="secondary-btn">
           ← Back
         </button>

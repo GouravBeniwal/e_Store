@@ -12,7 +12,17 @@ def get_products():
 
     products = Product.query
     if category and category != 'all':
-        products = products.filter_by(category=category)
+        parts = [part.strip() for part in category.split("/") if part.strip()]
+        if len(parts) == 1:
+            products = products.filter_by(category=parts[0])
+        elif len(parts) == 2:
+            products = products.filter_by(category=parts[0], subcategory=parts[1])
+        else:
+            products = products.filter_by(
+                category=parts[0],
+                subcategory=parts[1],
+                product_type=parts[2],
+            )
     if search:
         products = products.filter(Product.name.ilike(f'%{search}%') | Product.description.ilike(f'%{search}%'))
     return jsonify([product_to_dict(p) for p in products.order_by(Product.created_at.desc()).all()])

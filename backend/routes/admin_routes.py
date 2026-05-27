@@ -23,15 +23,18 @@ def add_product():
 
     data = request.get_json() or {}
 
-    required = ['name', 'description', 'price', 'category', 'stock']
-    missing  = [f for f in required if not str(data.get(f,'')).strip()]
-    if missing: return jsonify({'message': f'Missing fields: {", ".join(missing)}'}), 400
+    required = ['name', 'description', 'price', 'category', 'subcategory', 'product_type', 'stock']
+    missing = [f for f in required if not str(data.get(f, '')).strip()]
+    if missing:
+        return jsonify({'message': f'Missing fields: {", ".join(missing)}'}), 400
 
     product = Product(
         name=data['name'],
         description=data['description'],
         price=data['price'],
         category=data['category'],
+        subcategory=data.get('subcategory',''),
+        product_type=data.get('product_type',''),
         image_url=data.get('image_url',''),
         stock=data['stock']
     )
@@ -54,9 +57,14 @@ def admin_update_product(pid):
     p = db.session.get(Product, pid)
     if not p: return jsonify({'message': 'Product not found'}), 404
     data = request.get_json() or {}
-    p.name = data.get('name', p.name); p.description = data.get('description', p.description)
-    p.price = float(data.get('price', p.price)); p.category = data.get('category', p.category)
-    p.image_url = data.get('image_url', p.image_url); p.stock = int(data.get('stock', p.stock))
+    p.name = data.get('name', p.name)
+    p.description = data.get('description', p.description)
+    p.price = float(data.get('price', p.price))
+    p.category = data.get('category', p.category)
+    p.subcategory = data.get('subcategory', p.subcategory)
+    p.product_type = data.get('product_type', p.product_type)
+    p.image_url = data.get('image_url', p.image_url)
+    p.stock = int(data.get('stock', p.stock))
     db.session.commit()
     return jsonify({'message': 'Product updated!', 'product': product_to_dict(p)}), 200
 

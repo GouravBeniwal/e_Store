@@ -1,86 +1,130 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config";
-import { getToken, getUser } from "../utils/auth";
-
-const Badge = ({ status }) => {
-  const colors = { confirmed:"#1a5c3a", pending:"#a06000", cancelled:"#8b1a1a" };
-  return (
-    <span style={{ padding:"4px 12px", borderRadius:"20px", fontSize:"13px", fontWeight:600,
-      background: colors[status] || "#555", color:"#fff", textTransform:"capitalize" }}>
-      {status}
-    </span>
-  );
-};
+import { getToken } from "../utils/auth";
+import { toast } from "../utils/toast";
 
 const Profile = () => {
-  const [orders,  setOrders]  = useState([]);
-  const [user,    setUser]    = useState(null);
+  const [profile, setProfile] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = getToken();
-    if (!token) { navigate("/login"); return; }
-    setUser(getUser());
-    axios.get(`${API_BASE_URL}/orders`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => setOrders(r.data))
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    axios
+      .get(`${API_BASE_URL}/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setProfile(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  if (loading) return <div style={{ textAlign:"center", padding:"80px" }}>Loading…</div>;
+  const handleChange = (key) => (event) => {
+    setProfile({ ...profile, [key]: event.target.value });
+  };
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+    const token = getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axios.put(`${API_BASE_URL}/profile`, profile, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSaving(false);
+      toast.success("Profile updated successfully.");
+      navigate("/");
+    } catch (err) {
+      setSaving(false);
+      toast.error(err.response?.data?.message || "Failed to save profile.");
+    }
+  };
+
+  if (loading) return <div className="page-loading">Loading…</div>;
 
   return (
-    <div className="section" style={{ maxWidth:"800px", margin:"0 auto" }}>
-      {user && (
-        <div style={{ background:"var(--sand)", borderRadius:"8px", padding:"28px", marginBottom:"40px", display:"flex", gap:"20px", alignItems:"center" }}>
-          <div style={{ width:"64px", height:"64px", borderRadius:"50%", background:"var(--dark)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontSize:"28px", fontWeight:700, flexShrink:0 }}>
-            {user.username?.[0]?.toUpperCase()}
+    <div className="section profile-page">
+      <div className="profile-card">
+        <h2>Account Profile</h2>
+        <form className="profile-form" onSubmit={handleSave}>
+          <div className="form-group">
+            <label>Name</label>
+            <input
+              value={profile.username}
+              onChange={handleChange("username")}
+              required
+            />
           </div>
-          <div>
-            <h2 style={{ fontSize:"24px", marginBottom:"4px" }}>{user.username}</h2>
-            <p style={{ color:"var(--brown)", fontSize:"16px" }}>{user.is_admin ? "👑 Admin Account" : "Customer"}</p>
+          <div className="form-group">
+            <label>Email</label>
+            <input value={profile.email} disabled />
           </div>
-        </div>
-      )}
-
-      <h2 style={{ fontSize:"28px", marginBottom:"24px" }}>Order History</h2>
-
-      {orders.length === 0 ? (
-        <div style={{ textAlign:"center", padding:"48px", background:"var(--sand)", borderRadius:"8px" }}>
-          <div style={{ fontSize:"48px", marginBottom:"16px" }}>📦</div>
-          <p style={{ fontSize:"18px", color:"var(--brown)", marginBottom:"20px" }}>You haven't placed any orders yet.</p>
-          <Link to="/shop" className="btn-primary">Start Shopping</Link>
-        </div>
-      ) : (
-        orders.map((order) => (
-          <div key={order.id} style={{ border:"1.5px solid var(--sand)", borderRadius:"8px", padding:"24px", marginBottom:"20px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"16px", flexWrap:"wrap", gap:"12px" }}>
-              <div>
-                <div style={{ fontSize:"18px", fontWeight:700 }}>Order #{order.id}</div>
-                <div style={{ fontSize:"14px", color:"var(--brown)", marginTop:"4px" }}>
-                  {new Date(order.created_at).toLocaleDateString("en-IN", { year:"numeric", month:"long", day:"numeric" })}
-                </div>
-              </div>
-              <div style={{ textAlign:"right" }}>
-                <Badge status={order.status} />
-                <div style={{ fontSize:"20px", fontWeight:700, marginTop:"8px" }}>₹{order.total_amount.toLocaleString()}</div>
-              </div>
+          <div className="form-group">
+            <label>Phone</label>
+            <input
+              type="tel"
+              value={profile.phone}
+              pattern="[6-9]{1}[0-9]{9}"
+              onChange={handleChange("phone")}
+            />
+          </div>
+          <div className="form-group">
+            <label>Address</label>
+            <textarea
+              value={profile.address}
+              onChange={handleChange("address")}
+              rows={4}
+            />
+          </div>
+          <div className="profile-grid">
+            <div className="form-group">
+              <label>City</label>
+              <input value={profile.city} onChange={handleChange("city")} />
             </div>
-            <div style={{ background:"var(--cream)", borderRadius:"4px", padding:"16px" }}>
-              {order.items.map((item, i) => (
-                <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"6px 0", fontSize:"15px", borderBottom: i < order.items.length - 1 ? "1px solid var(--sand)" : "none" }}>
-                  <span>{item.product_name} × {item.quantity}</span>
-                  <span style={{ fontWeight:600 }}>₹{(item.price * item.quantity).toLocaleString()}</span>
-                </div>
-              ))}
+            <div className="form-group">
+              <label>State</label>
+              <input value={profile.state} onChange={handleChange("state")} />
+            </div>
+            <div className="form-group">
+              <label>Pincode</label>
+              <input
+                value={profile.pincode}
+                onChange={handleChange("pincode")}
+              />
             </div>
           </div>
-        ))
-      )}
+          <button
+            type="submit"
+            className="btn-primary btn-profile"
+            disabled={saving}
+          >
+            {saving ? "Saving…" : "Save Profile"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
+
 export default Profile;

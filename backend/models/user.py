@@ -26,6 +26,26 @@ class User(db.Model):
         default=False
     )
 
+    phone = db.Column(
+        db.String(20)
+    )
+
+    address = db.Column(
+        db.Text
+    )
+
+    city = db.Column(
+        db.String(80)
+    )
+
+    state = db.Column(
+        db.String(80)
+    )
+
+    pincode = db.Column(
+        db.String(15)
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

@@ -25,12 +25,17 @@ class Order(db.Model):
     payment_status = db.Column(db.String(30), default='pending')
 
     # ✅ SHIPPING FIELDS
-    full_name = db.Column(db.String(120))
-    phone = db.Column(db.String(20))
-    address = db.Column(db.Text)
-    city = db.Column(db.String(80))
-    state = db.Column(db.String(80))
-    pincode = db.Column(db.String(10))
+    shipping_id = db.Column(
+        db.Integer,
+        db.ForeignKey('shipping.id'),
+        nullable=False
+    )
+
+    payment_id = db.Column(
+        db.Integer,
+        db.ForeignKey('payment.id'),
+        nullable=False
+    )
 
     created_at = db.Column(
         db.DateTime,
@@ -38,6 +43,8 @@ class Order(db.Model):
     )
 
     user = db.relationship('User', backref=db.backref('orders', lazy=True))
+    shipping = db.relationship('Shipping', backref=db.backref('orders', lazy=True))
+    payment = db.relationship('Payment', backref=db.backref('orders', lazy=True))
 
 
 class OrderItem(db.Model):

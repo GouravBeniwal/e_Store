@@ -12,6 +12,10 @@ class Product(db.Model):
 
     category = db.Column(db.String(50), nullable=False)
 
+    subcategory = db.Column(db.String(50), nullable=True)
+
+    product_type = db.Column(db.String(50), nullable=True)
+
     image_url = db.Column(db.String(200))
 
     stock = db.Column(db.Integer, default=0)

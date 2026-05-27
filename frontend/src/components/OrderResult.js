@@ -4,31 +4,19 @@ import { Link } from "react-router-dom";
 const OrderResult = ({ success, orderData, error, setStep }) => {
   if (success) {
     return (
-      <div style={{ textAlign: "center", padding: "80px 20px" }}>
-        <div style={{ fontSize: "72px", marginBottom: "20px" }}>🎉</div>
-
-        <h1>Order Placed Successfully!</h1>
-
-        <p style={{ marginTop: "12px" }}>
+      <div className="order-result">
+        <div className="order-result-icon">🎉</div>
+        <h1 className="order-result-title">Order Placed Successfully!</h1>
+        <p className="order-result-text">
           Order ID: <strong>#{orderData.id}</strong>
         </p>
-
-        <p style={{ marginBottom: "24px" }}>
+        <p className="order-result-total">
           Total: ₹{orderData.total.toLocaleString()}
         </p>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <Link to="/profile" className="btn-primary">
+        <div className="order-result-actions">
+          <Link to="/orders" className="btn-primary">
             View Orders
           </Link>
-
           <Link to="/shop" className="btn-primary">
             Continue Shopping
           </Link>
@@ -38,19 +26,15 @@ const OrderResult = ({ success, orderData, error, setStep }) => {
   }
 
   return (
-    <div style={{ textAlign: "center", padding: "80px 20px" }}>
-      <div style={{ fontSize: "72px", marginBottom: "20px" }}>❌</div>
-
-      <h1>Order Failed</h1>
-
-      <p style={{ marginTop: "12px", color: "#c00" }}>
+    <div className="order-result">
+      <div className="order-result-icon">❌</div>
+      <h1 className="order-result-title">Order Failed</h1>
+      <p className="order-result-text error-text">
         {error || "Something went wrong"}
       </p>
-
       <button
         onClick={() => setStep("cart")}
-        className="btn-primary"
-        style={{ marginTop: "24px", display: "inline-block" }}
+        className="btn-primary order-result-button"
       >
         Try Again
       </button>

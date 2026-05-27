@@ -9,12 +9,16 @@ import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 import Cart from "./pages/Cart";
 import Admin from "./pages/Admin";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ChangePassword from "./pages/ChangePassword";
+import { setupAxiosInterceptors } from "./utils/auth";
 import "./App.css";
+
+setupAxiosInterceptors();
 
 function App() {
   return (
@@ -32,6 +36,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<OrderHistory />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/cp" element={<ChangePassword />} />

@@ -4,6 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import db
 from models.cart import Cart
 from models.order import Order, OrderItem
+from models.shipping import Shipping
+from models.payment import Payment
+from models.user import User
 
 order_bp = Blueprint('orders', __name__)
 
@@ -12,11 +15,14 @@ order_bp = Blueprint('orders', __name__)
 def place_order():
 
     user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if user and user.is_admin:
+        return jsonify({'message': 'Admin accounts cannot place orders'}), 403
 
     data = request.get_json() or {}
 
-    shipping = data.get('shippingAddress') or {}
-    payment_method = data.get('paymentMethod') or 'cod'
+    shipping_id = data.get('shipping_id')
+    payment_id = data.get('payment_id')
 
     cart_items = Cart.query.filter_by(
         user_id=user_id
@@ -38,23 +44,26 @@ def place_order():
     shipping_charge = 0 if total >= 2000 else 99
     grand_total = round(total + shipping_charge, 2)
 
-    # PAYMENT STATUS LOGIC (FRONTEND SIMULATED)
-    payment_status = 'pending'
-    if payment_method != 'cod':
-        payment_status = 'initiated'
+    # PAYMENT CHARGE LOGIC
+    payment = Payment.query.get(payment_id)
+    shipping = Shipping.query.get(shipping_id)
+
+    if not shipping or shipping.user_id != user_id:
+        return jsonify({'message': 'Invalid shipping record'}), 400
+
+    if not payment or payment.user_id != user_id:
+        return jsonify({'message': 'Invalid payment record'}), 400
+
+    if payment.status != 'success' and payment.method != 'cod':
+        return jsonify({'message': 'Payment not completed'}), 400
 
     order = Order(
         user_id=user_id,
         total_amount=grand_total,
-        payment_method=payment_method,
-        payment_status=payment_status,
-
-        full_name=shipping.get('fullName', ''),
-        phone=shipping.get('phone', ''),
-        address=shipping.get('address', ''),
-        city=shipping.get('city', ''),
-        state=shipping.get('state', ''),
-        pincode=shipping.get('pincode', '')
+        payment_method=payment.method,
+        payment_status=payment.status,
+        shipping_id=shipping.id,
+        payment_id=payment.id
     )
 
     db.session.add(order)
@@ -106,12 +115,17 @@ def get_orders():
             "payment_status": order.payment_status,
             "created_at": order.created_at.isoformat(),
             "shipping": {
-                "full_name": order.full_name,
-                "phone": order.phone,
-                "address": order.address,
-                "city": order.city,
-                "state": order.state,
-                "pincode": order.pincode
+                "full_name": order.shipping.full_name,
+                "phone": order.shipping.phone,
+                "address": order.shipping.address,
+                "city": order.shipping.city,
+                "state": order.shipping.state,
+                "pincode": order.shipping.pincode
+            },
+            "payment": {
+                "method": order.payment.method,
+                "status": order.payment.status,
+                "details": order.payment.details
             },
             'items': [{'product_name': i.product.name, 'quantity': i.quantity, 'price': i.price} for i in order.items]
         })
