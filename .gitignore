@@ -10,6 +10,7 @@ instance/
 *.sqlite3
 *.db
 test_db.py
+.venv/
 
 # Node / React
 node_modules/

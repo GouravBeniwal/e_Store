@@ -70,31 +70,36 @@ const Signup = () => {
               key: "username",
               type: "text",
               ph: "yourname",
+              id: "name",
             },
             {
               label: "Email Address",
               key: "email",
               type: "email",
               ph: "you@example.com",
+              id: "email",
             },
             {
               label: "Password",
               key: "password",
               type: "password",
               ph: "Min. 8 characters",
+              id: "password",
             },
             {
               label: "Confirm Password",
               key: "confirm",
               type: "password",
               ph: "Repeat password",
+              id: "confirmPassword",
             },
-          ].map(({ label, key, type, ph }) => (
+          ].map(({ label, key, type, ph, id }) => (
             <div className="form-group" key={key}>
               <label>{label}</label>
               <input
                 type={type}
                 placeholder={ph}
+                id={id}
                 value={form[key]}
                 onChange={set(key)}
                 required

@@ -1,0 +1,25 @@
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+__pycache__/
+instance/
+
+# Node
+frontend/node_modules
+frontend/build
+frontend/.pnp
+frontend/.pnp.js
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

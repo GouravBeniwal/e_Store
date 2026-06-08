@@ -4,6 +4,7 @@ import axios from "axios";
 import API_BASE_URL from "../config";
 import { getToken, isAdmin } from "../utils/auth";
 import { toast } from "../utils/toast";
+import placeHolder from "../assets/image_not_found.jpg";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -42,6 +43,7 @@ const ProductDetail = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.success(res.data.message);
+      window.dispatchEvent(new Event("cart-change"));
     } catch (err) {
       toast.error(err.response?.data?.message || "Could not add to cart");
     } finally {
@@ -66,10 +68,7 @@ const ProductDetail = () => {
     <div className="product-detail">
       <div className="product-gallery">
         <div className="main-img">
-          <img
-            src={product.image_url || "https://via.placeholder.com/600x800"}
-            alt={product.name}
-          />
+          <img src={product.image_url || placeHolder} alt={product.name} />
         </div>
       </div>
       <div className="product-detail-info">

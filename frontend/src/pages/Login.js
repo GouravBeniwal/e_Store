@@ -77,7 +77,7 @@ const Login = () => {
         </p>
         <div className="auth-hint">
           <small>
-            Demo: user@shop.com / user123 &nbsp;|&nbsp; Admin: admin@shop.com /
+            Demo: user@shop.com / User@123 &nbsp;|&nbsp; Admin: admin@shop.com /
             admin123
           </small>
         </div>

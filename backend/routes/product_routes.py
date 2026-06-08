@@ -27,6 +27,23 @@ def get_products():
         products = products.filter(Product.name.ilike(f'%{search}%') | Product.description.ilike(f'%{search}%'))
     return jsonify([product_to_dict(p) for p in products.order_by(Product.created_at.desc()).all()])
 
+@product_bp.route('/products/suggestions', methods=['GET'])
+def get_product_suggestions():
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return jsonify([])
+
+    suggestions = (
+        Product.query
+        .filter(Product.name.ilike(f'%{query}%'))
+        .order_by(Product.name)
+        .limit(10)
+        .all()
+    )
+
+    return jsonify([p.name for p in suggestions])
+
 @product_bp.route('/products/<int:pid>', methods=['GET'])
 def get_product(pid):
     p = db.session.get(Product, pid)

@@ -2,7 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config";
-import { clearAuth, getUser, isLoggedIn, isAdmin } from "../utils/auth";
+import {
+  clearAuth,
+  getToken,
+  getUser,
+  isLoggedIn,
+  isAdmin,
+} from "../utils/auth";
 
 const CartIcon = () => (
   <svg
@@ -36,6 +42,7 @@ const Header = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [admin, setAdmin] = useState(false);
   const [username, setUsername] = useState("");
+  const [cartCount, setCartCount] = useState(0);
   const [dropdown, setDropdown] = useState(false);
   const [shopDropdown, setShopDropdown] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -49,11 +56,39 @@ const Header = () => {
     setUsername(u?.username || "");
   }, []);
 
+  const fetchCartCount = useCallback(async () => {
+    const token = getToken();
+    if (!token || isAdmin()) {
+      setCartCount(0);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`${API_BASE_URL}/cart`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartCount(Array.isArray(res.data) ? res.data.length : 0);
+    } catch {
+      setCartCount(0);
+    }
+  }, []);
+
   useEffect(() => {
     refresh();
-    window.addEventListener("auth-change", refresh);
-    return () => window.removeEventListener("auth-change", refresh);
-  }, [refresh]);
+    fetchCartCount();
+
+    const handleAuthChange = () => {
+      refresh();
+      fetchCartCount();
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("cart-change", fetchCartCount);
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("cart-change", fetchCartCount);
+    };
+  }, [refresh, fetchCartCount]);
 
   useEffect(() => {
     axios
@@ -171,6 +206,9 @@ const Header = () => {
             {!admin && (
               <Link to="/cart" className="nav-icon" title="Cart">
                 <CartIcon />
+                {cartCount > 0 && (
+                  <span className="cart-badge">{cartCount}</span>
+                )}
               </Link>
             )}
             {loggedIn ? (

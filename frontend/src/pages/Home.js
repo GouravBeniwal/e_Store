@@ -6,6 +6,7 @@ import groceryHero from "../assets/grocery_bg.jpg";
 import fashionHero from "../assets/fashion-hero.jpg";
 import decorationHero from "../assets/decoration-hero.jpeg";
 import technologyHero from "../assets/tech-hero.jpeg";
+import placeHolder from "../assets/image_not_found.jpg";
 
 const heroSlides = [
   {
@@ -122,7 +123,7 @@ const Home = () => {
             >
               <div className="product-img">
                 <img
-                  src={p.image_url || "https://via.placeholder.com/300x400"}
+                  src={p.image_url === "" ? placeHolder : p.image_url}
                   alt={p.name}
                   loading="lazy"
                 />

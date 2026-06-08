@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config";
+import placeHolder from "../assets/image_not_found.jpg";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selCat, setSelCat] = useState("all");
   const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(true);
+  const debounceTimer = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -101,8 +105,44 @@ const Shop = () => {
       navigate(`/shop?category=${encodeURIComponent(cat)}`);
     }
   };
+
+  const fetchSuggestions = useCallback((query) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    axios
+      .get(`${API_BASE_URL}/products/suggestions`, {
+        params: { q: query },
+      })
+      .then((r) => setSuggestions(r.data || []))
+      .catch(() => setSuggestions([]));
+  }, []);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setShowSuggestions(true);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = window.setTimeout(() => {
+      fetchSuggestions(value);
+    }, 250);
+  };
+
+  const handleSuggestionClick = (value) => {
+    setSearch(value);
+    setShowSuggestions(false);
+    fetchProducts(selCat, value);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
+    setShowSuggestions(false);
     fetchProducts(selCat, search);
   };
 
@@ -191,14 +231,41 @@ const Shop = () => {
           )}
         </div>
 
-        <form onSubmit={handleSearch} className="search-form">
-          <input
-            type="text"
-            placeholder="Search products…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-          />
+        <form
+          onSubmit={handleSearch}
+          className="search-form"
+          autoComplete="off"
+        >
+          <div className="search-autocomplete">
+            <input
+              type="text"
+              placeholder="Search products…"
+              value={search}
+              onChange={handleSearchChange}
+              onFocus={() => setShowSuggestions(true)}
+              className="search-input"
+            />
+            {showSuggestions && search.trim() && (
+              <div className="autocomplete-dropdown">
+                {suggestions.length > 0 ? (
+                  suggestions.slice(0, 5).map((item, idx) => (
+                    <button
+                      key={`${item}-${idx}`}
+                      type="button"
+                      className="suggestion-item"
+                      onClick={() => handleSuggestionClick(item)}
+                    >
+                      {item}
+                    </button>
+                  ))
+                ) : (
+                  <div className="no-suggestions">
+                    No matching products found.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <button
             type="submit"
             className="btn-primary"
@@ -238,7 +305,7 @@ const Shop = () => {
               >
                 <div className="product-img">
                   <img
-                    src={p.image_url || "https://via.placeholder.com/300x400"}
+                    src={p.image_url || placeHolder}
                     alt={p.name}
                     loading="lazy"
                   />

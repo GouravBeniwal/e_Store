@@ -9,6 +9,8 @@ import ShippingAddress from "../components/ShippingAddress";
 import PaymentMethod from "../components/PaymentMethod";
 import OrderResult from "../components/OrderResult";
 
+import placeHolder from "../assets/image_not_found.jpg";
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +29,10 @@ const Cart = () => {
   });
   const adminUser = isAdmin();
 
+  const notifyCartChange = () => {
+    window.dispatchEvent(new Event("cart-change"));
+  };
+
   const fetchCart = useCallback(async () => {
     const token = getToken();
     if (!token) {
@@ -38,6 +44,7 @@ const Cart = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCartItems(r.data);
+      notifyCartChange();
     } catch {
       toast.error("Could not load cart");
     } finally {
@@ -167,6 +174,7 @@ const Cart = () => {
       });
 
       setCartItems([]);
+      notifyCartChange();
       toast.success("Order placed successfully! 🎉");
       setStep("result");
     } catch (err) {
@@ -277,10 +285,7 @@ const Cart = () => {
               <div key={item.id} className="cart-item">
                 <div className="cart-item-img">
                   <img
-                    src={
-                      item.product.image_url ||
-                      "https://via.placeholder.com/120"
-                    }
+                    src={item.product.image_url || placeHolder}
                     alt={item.product.name}
                   />
                 </div>

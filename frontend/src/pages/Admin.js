@@ -5,6 +5,8 @@ import API_BASE_URL from "../config";
 import { getToken, isAdmin } from "../utils/auth";
 import { toast } from "../utils/toast";
 
+import placeHolder from "../assets/image_not_found.jpg";
+
 const TABS = ["Products", "Users", "Orders"];
 const CATEGORY_OPTIONS = ["Fashion", "Technology", "Grocery", "Decoration"];
 const SUBCATEGORY_OPTIONS = {
@@ -248,7 +250,7 @@ const Admin = () => {
               <label>Image URL</label>
               <input
                 type="text"
-                placeholder="http://..."
+                placeholder={placeHolder}
                 value={form.image_url}
                 onChange={set("image_url")}
               />
@@ -369,7 +371,7 @@ const Admin = () => {
                 }}
               >
                 <img
-                  src={p.image_url || "https://via.placeholder.com/300"}
+                  src={p.image_url || placeHolder}
                   alt={p.name}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
