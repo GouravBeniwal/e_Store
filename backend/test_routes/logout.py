@@ -1,3 +1,5 @@
+import token
+
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -7,6 +9,10 @@ from login import login_test
 import time
 def logout_test():
     chrome =login_test()  # Call the login test first
+    print("Before logout, token is:")
+    token = chrome.execute_script("""
+    return window.localStorage.getItem('token');""")
+    print(token)
     chrome.maximize_window()
     print(chrome.title)
     menu = chrome.find_element('class name', 'nav-account')
@@ -15,6 +21,10 @@ def logout_test():
     submenu.click()    
     print("Logout test completed.",chrome.current_url)
     time.sleep(3)
+    print("After logout, token is:")
+    token = chrome.execute_script("""
+    return window.localStorage.getItem('token');""")
+    print(token)
     locater = chrome.find_element('class name', 'nav-icon')
     locater.click()
     time.sleep(1)
