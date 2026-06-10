@@ -7,7 +7,7 @@ def product_check_test():
     chrome.maximize_window()
     element = chrome.find_element(By.CLASS_NAME, "shop-menu")
     element.click()
-    time.sleep(2)
+    time.sleep(4)
     products = chrome.find_elements(By.CLASS_NAME, "product-card")
     assert len(products) > 0, "No products found on the shop page."
     print("Product check test passed.")

@@ -7,7 +7,7 @@ def search_bar_test():
     search_bar = chrome.find_element(By.CLASS_NAME, "search-input")
     search_bar.send_keys("laptop")
     time.sleep(1)
-    chrome.execute_script("window.scrollBy(0, 500);")  # Scroll down 500 pixels
+    chrome.execute_script("window.scrollBy(0, 400);")  # Scroll down 500 pixels
     # chrome.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     assert chrome.find_element(By.CLASS_NAME,"autocomplete-dropdown").is_displayed(), "Search suggestions not displayed."
     search_button = chrome.find_element(By.XPATH, "//*[@id='root']/div/main/div[1]/form/button")
