@@ -36,8 +36,6 @@ def create_app():
     app.register_blueprint(payment_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(category_bp, url_prefix='/api')
-    # app.register_blueprint(search_bp, url_prefix='/api')
-    # app.register_blueprint(payment_bp, url_prefix='/api')
     # app.register_blueprint(wishlist_bp, url_prefix='/api')
 
     return app

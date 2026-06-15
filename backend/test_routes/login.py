@@ -1,9 +1,9 @@
 from selenium import webdriver
+from driver import Driver
 import time
 def login_test(mail="test@mail.com", password="Test@123"):
-    chrome = webdriver.Chrome()
-    chrome.get("http://localhost:3000")
-    chrome.maximize_window()
+    driver = Driver()
+    chrome = driver.getDriver()
     print(chrome.title)
     locater = chrome.find_element('class name', 'nav-icon')
     locater.click()
@@ -14,6 +14,6 @@ def login_test(mail="test@mail.com", password="Test@123"):
     chrome.find_element('class name', 'btn-auth').click()
     time.sleep(3)
     print("Login test completed.",chrome.current_url)
-    time.sleep(5)
+    time.sleep(1)
     return chrome
 if __name__ == "__main__":    login_test()

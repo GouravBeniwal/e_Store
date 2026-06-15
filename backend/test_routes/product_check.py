@@ -1,10 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from driver import Driver
 import time
 def product_check_test():
-    chrome = webdriver.Chrome()
-    chrome.get("http://localhost:3000/")
-    chrome.maximize_window()
+    driver = Driver()
+    chrome = driver.getDriver()
     element = chrome.find_element(By.CLASS_NAME, "shop-menu")
     element.click()
     time.sleep(4)

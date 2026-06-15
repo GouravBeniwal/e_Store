@@ -1,9 +1,9 @@
 from selenium import webdriver
+from driver import Driver
 import time
-def register_test():
-    chrome = webdriver.Chrome()
-    chrome.get("http://localhost:3000")
-    chrome.maximize_window()
+def register_test(email="Test@mail.com", password="Test@123"):
+    driver = Driver()
+    chrome = driver.getDriver()
     print(chrome.title)
     locater = chrome.find_element('class name', 'nav-icon')
     locater.click()
@@ -11,11 +11,11 @@ def register_test():
     sign_up.click()
     chrome.find_element('id', 'name').send_keys("Test User")
     time.sleep(1)
-    chrome.find_element('id', 'email').send_keys("test@mail.com")
+    chrome.find_element('id', 'email').send_keys(email)
     time.sleep(1)
-    chrome.find_element('id', 'password').send_keys("Test@123")
+    chrome.find_element('id', 'password').send_keys(password)
     time.sleep(1)
-    chrome.find_element('id', 'confirmPassword').send_keys("Test@123")
+    chrome.find_element('id', 'confirmPassword').send_keys(password)
     time.sleep(2)
     chrome.find_element('class name', 'btn-auth').click()
     time.sleep(3)
