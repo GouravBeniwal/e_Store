@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: estore-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: JWT_SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: estore-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://estore-backend.onrender.com
