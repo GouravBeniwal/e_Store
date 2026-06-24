@@ -6,9 +6,7 @@ from product_check import product_check_test
 from driver import Driver
 import time
 def search_bar_test(item="laptop"):
-    product_check_test()
-    driver = Driver()
-    chrome = driver.getDriver()
+    chrome = product_check_test()
     wait = WebDriverWait(chrome, 200)
     search_bar = wait.until(
     EC.visibility_of_element_located((By.CLASS_NAME, "search-input"))

@@ -17,6 +17,7 @@ def register_test(email="Test@mail.com", password="Test@123"):
     time.sleep(1)
     chrome.find_element('id', 'confirmPassword').send_keys(password)
     time.sleep(2)
+    chrome.execute_script('window.scrollBy(0,200)')
     chrome.find_element('class name', 'btn-auth').click()
     time.sleep(3)
     print("Registration test completed.",chrome.current_url)

@@ -8,7 +8,7 @@ def product_add_test():
     chrome.find_element('xpath','//*[@id="root"]/div/main/div/div[1]/button').click()
     time.sleep(1)
     # Form filling
-    chrome.find_element('xpath','//*[@id="root"]/div/main/div/div[2]/form/div[1]/input').send_keys('Condom')
+    chrome.find_element('xpath','//*[@id="root"]/div/main/div/div[2]/form/div[1]/input').send_keys('Chips')
     time.sleep(1)
     category = Select(chrome.find_element(By.XPATH,'//*[@id="root"]/div/main/div/div[2]/form/div[2]/select'))
     category.select_by_visible_text('Grocery')

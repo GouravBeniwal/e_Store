@@ -7,7 +7,8 @@ from extensions import db
 from app import app
 from models.user import User 
 import bcrypt
-URL = 'https://e-store-backend-3hik.onrender.com'
+# URL = 'https://e-store-backend-3hik.onrender.com'
+URL = 'http://localhost:5000'
 PRODUCTS = [
 {"name": "Urban Crew Tee", "description": "Soft cotton t-shirt with a modern crew neck fit.", "price": 799, "category": "Fashion / Men / T-Shirts", "image_url":  f"{URL}/static/fashion/t_shirt.jpg", "stock": 45},
 {"name": "Performance Graphic Tee", "description": "Breathable performance tee for workouts and everyday wear.", "price": 899, "category": "Fashion / Men / T-Shirts", "image_url":  f"{URL}/static/fashion/t_shirt1.jpg", "stock": 28},

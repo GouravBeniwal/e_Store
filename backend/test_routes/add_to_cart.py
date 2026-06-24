@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 def add_to_cart_test():
-    chrome = login_test('user@shop.com', 'User@123')
+    chrome = login_test('user@shop.com','User@123')
     element = chrome.find_element(By.CLASS_NAME, "shop-menu")
     element.click()
     time.sleep(4)
